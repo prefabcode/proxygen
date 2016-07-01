@@ -1,0 +1,16 @@
+[package]
+name = "proxygen"
+version = "0.1.0"
+authors = ["Thomas Hansen <dryvnt@gmail.com>"]
+
+[dependencies]
+clippy = "*"
+ease = "*"
+serde = "*"
+serde_json = "*"
+serde_macros = "*"
+maud = "*"
+maud_macros = "*"
+lazy_static = "*"
+regex = "*"
+nickel = "*"
