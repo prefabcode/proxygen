@@ -5,7 +5,6 @@ authors = ["Thomas Hansen <dryvnt@gmail.com>"]
 
 [dependencies]
 clippy = "*"
-ease = "*"
 serde = "*"
 serde_json = "*"
 serde_macros = "*"

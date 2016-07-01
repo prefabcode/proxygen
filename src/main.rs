@@ -7,8 +7,6 @@
 #![feature(plugin)]
 #![plugin(maud_macros)]
 
-extern crate ease;
-
 extern crate serde;
 extern crate serde_json;
 
@@ -17,7 +15,7 @@ use maud::PreEscaped;
 
 #[macro_use]
 extern crate nickel;
-use nickel::{Nickel, NickelError, FormBody, MediaType};
+use nickel::{Nickel, FormBody, MediaType};
 use nickel::status::StatusCode;
 
 extern crate regex;
@@ -31,7 +29,6 @@ use card::Card;
 mod error;
 use error::ProxygenError;
 
-use std::io::Read;
 
 const PROXYGEN_HTML: &'static str = include_str!("proxygen.html");
 const PROXYGEN_CSS: &'static str = include_str!("proxygen.css");
@@ -59,11 +56,9 @@ fn parse_decklist(decklist: &str) -> Result<Vec<(u32, Card)>, ProxygenError> {
                         Err(e) => return Err(e),
                     };
 
-                    println!("{}x {:?}", amount, card);
-
                     Ok((amount, card))
                 }
-                None => return Err(ProxygenError::DecklistParseError(String::from(card_entry))),
+                None => Err(ProxygenError::DecklistParseError(String::from(card_entry))),
             }
 
         })
@@ -97,7 +92,7 @@ fn main() {
 
             for pair in parsed {
                 let (n, card) = pair;
-                for i in 0..n {
+                for _ in 0..n {
                     html!(div_chain, {
                         div style="border: 0.5mm solid black; float: left; width: 60mm; height: 85mm" {
                             div style="padding: 2mm" {
@@ -108,7 +103,6 @@ fn main() {
                 }
             }
 
-            //decklist.replace("")
             println!("{:?}", form_body);
             return res.send(div_chain)
         }

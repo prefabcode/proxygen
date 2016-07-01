@@ -1,10 +1,6 @@
 use super::error::ProxygenError;
 
-use super::ease::{Url, Request};
-
 use super::maud::PreEscaped;
-
-use super::serde_json;
 
 use super::regex::Regex;
 
@@ -21,20 +17,6 @@ pub struct Card {
     power_toughness: Option<(String, String)>,
 }
 
-fn prettify_types(types: &[String]) -> String {
-    let mut collected = String::new();
-    for t in types {
-        let (first, rest) = t.split_at(1);
-        let mut first = first.to_uppercase();
-        first.push_str(rest);
-        if !collected.is_empty() {
-            collected.push(' ');
-        }
-        collected.push_str(&first);
-    }
-    collected
-}
-
 lazy_static!{
     static ref RE: Regex = Regex::new(r"(?P<reminder>\(.+\))").unwrap();
 }
@@ -44,6 +26,8 @@ impl Card {
         DATABASE.get(name)
     }
 
+    // TODO: circumvent this? see sane_pt
+    #[allow(needless_borrow)]
     pub fn to_html(&self) -> String {
         let mut s = String::new();
 
