@@ -4,6 +4,7 @@ use super::ease::Error as EaseError;
 
 #[derive(Debug)]
 pub enum ProxygenError {
+    DecklistParseError(String),
     InvalidCardName(String),
     JsonError(JsonError),
     EaseError(EaseError),
