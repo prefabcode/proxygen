@@ -32,6 +32,7 @@ use error::ProxygenError;
 
 const PROXYGEN_HTML: &'static str = include_str!("proxygen.html");
 const PROXYGEN_CSS: &'static str = include_str!("proxygen.css");
+const RESULTS_CSS: &'static str = include_str!("results.css");
 
 lazy_static!{
     static ref RE: Regex = Regex::new(r"^\s*(\d+)?x?\s*(\D*?)\s*$").unwrap();
@@ -97,18 +98,23 @@ fn main() {
             for pair in parsed {
                 let (n, card) = pair;
                 for _ in 0..n {
-                    html!(div_chain, {
-                        div style="border: 0.5mm solid black; float: left; width: 60mm; height: 85mm" {
-                            div style="padding: 2mm" {
-                                ^PreEscaped(card.to_html())
-                            }
-                        }
-                    }).unwrap();
+                    div_chain.push_str(&card.to_html());
                 }
             }
 
             println!("{:?}", form_body);
-            return res.send(div_chain)
+            let mut doc = String::new();
+            html!(doc, html {
+                head {
+                    style {
+                        ^PreEscaped(RESULTS_CSS)
+                    }
+                }
+                body {
+                    ^PreEscaped(div_chain)
+                }
+            }).unwrap();
+            return res.send(doc)
         }
     });
 
