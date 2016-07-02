@@ -83,8 +83,12 @@ fn main() {
                     *res.status_mut() = StatusCode::BadRequest;
                     return res.send(format!("Invalid card name: {:?}", s));
                 },
-                _ => {
-                    panic!("unimplemented error code")
+                Err(ProxygenError::DecklistParseError(s)) => {
+                    *res.status_mut() = StatusCode::BadRequest;
+                    return res.send(format!("Error parsing decklist at line: {:?}", s));
+                },
+                Err(e) => {
+                    panic!("unimplemented error code {:?}", e)
                 }
             };
 
