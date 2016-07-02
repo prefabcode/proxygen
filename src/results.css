@@ -8,19 +8,30 @@
 
 .card_inner {
     padding: 2mm;
+    font-family: monospace;
+    font-size: 3.5mm;
 }
 
 .name {
     display:inline-block;
-    width: 70%;
+    font-weight: bold;
+    width: 65%;
 }
 
-.mana {
+.manacost {
     display:inline-block;
-    width: 30%;
+    width: 35%;
     text-align: right;
 }
 
+.oracle_text {
+    font-size: 75%;
+}
+
 .power_toughness {
+    text-align: right;
+}
+
+.loyalty {
     text-align: right;
 }

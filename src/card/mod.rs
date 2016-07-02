@@ -8,17 +8,46 @@ mod database;
 use self::database::DATABASE;
 
 #[derive(Deserialize, Debug)]
-pub struct Card {
-    // There are other fields we omit for simplicity
-    name: String,
-    cost: String,
-    typeline: String,
-    text: String,
-    power_toughness: Option<(String, String)>,
+pub enum Card {
+    Creature {
+        name: String,
+        manacost: String,
+        typeline: String,
+        text: String,
+        power: String,
+        toughness: String,
+    },
+    Planeswalker {
+        name: String,
+        manacost: String,
+        typeline: String,
+        text: String,
+        loyalty: u64,
+    },
+    Noncreature {
+        name: String,
+        manacost: String,
+        typeline: String,
+        text: String,
+    },
+    Unimplemented {
+        name: String,
+        layout: String,
+    },
 }
 
 lazy_static!{
     static ref RE: Regex = Regex::new(r"(?P<reminder>\(.+\))").unwrap();
+}
+
+fn prettify_oracle_text(text: &str) -> String {
+    println!("{:#?}", text);
+    RE.replace_all(&text.replace("\u{2212}", "&minus;").replace("\n", "<br>"),
+                   "<i>$reminder</i>")
+}
+
+fn escape_typeline_dash(text: &str) -> String {
+    text.replace("\u{2014}", "&mdash;")
 }
 
 impl Card {
@@ -26,34 +55,80 @@ impl Card {
         DATABASE.get(name)
     }
 
-    // TODO: circumvent this? see sane_pt
-    #[allow(needless_borrow)]
+    #[allow(cyclomatic_complexity)]
     pub fn to_html(&self) -> String {
-        let typeline = self.typeline.replace("\u{2014}", "&mdash;");
-
-        let sane_text = self.text.replace("\n", "<br>");
-        let pretty_text = RE.replace_all(&sane_text, "<i>$reminder</i>");
-
-        let sane_pt = match self.power_toughness {
-            Some((ref pow, ref tou)) => pow.clone() + "/" + &tou,
-            None => String::new(),
-        };
-
-        let mut s = String::new();
-
-        html!(s, {
-            div class="card_frame" {
-                div class="card_inner" {
-                    p class="name" { b {^self.name} }
-                    p class="mana" { ^self.cost }
-                    p { ^PreEscaped(typeline) }
-                    p { ^PreEscaped(pretty_text) }
-                    p class="power_toughness" { ^sane_pt }
-                }
+        match *self {
+            Card::Creature { ref name,
+                             ref manacost,
+                             ref typeline,
+                             ref text,
+                             ref power,
+                             ref toughness } => {
+                let escaped_typeline = escape_typeline_dash(typeline);
+                let pretty_text = prettify_oracle_text(text);
+                let mut s = String::new();
+                html!( s,
+                    div class="card_frame" {
+                        div class="card_inner" {
+                            p class="name" { ^name }
+                            p class="manacost" { ^manacost }
+                            p class="typeline" { ^PreEscaped(escaped_typeline) }
+                            p class="oracle_text" { ^PreEscaped(pretty_text)}
+                            p class = "power_toughness" { ^power "/" ^toughness}
+                        }
+                    }
+                )
+                    .unwrap();
+                s
             }
-        })
-            .unwrap();
-
-        s
+            Card::Planeswalker { ref name, ref manacost, ref typeline, ref text, ref loyalty } => {
+                let escaped_typeline = escape_typeline_dash(typeline);
+                let pretty_text = prettify_oracle_text(text);
+                let mut s = String::new();
+                html!( s,
+                    div class="card_frame" {
+                        div class="card_inner" {
+                            p class="name" { ^name }
+                            p class="manacost" { ^manacost }
+                            p class="typeline" { ^PreEscaped(escaped_typeline) }
+                            p class="oracle_text" { ^PreEscaped(pretty_text)}
+                            p class = "loyalty" { ^loyalty }
+                        }
+                    }
+                )
+                    .unwrap();
+                s
+            }
+            Card::Noncreature { ref name, ref manacost, ref typeline, ref text } => {
+                let escaped_typeline = escape_typeline_dash(typeline);
+                let pretty_text = prettify_oracle_text(text);
+                let mut s = String::new();
+                html!( s,
+                    div class="card_frame" {
+                        div class="card_inner" {
+                            p class="name" { ^name }
+                            p class="manacost" { ^manacost }
+                            p class="typeline" { ^PreEscaped(escaped_typeline) }
+                            p class="oracle_text" { ^PreEscaped(pretty_text)}
+                        }
+                    }
+                )
+                    .unwrap();
+                s
+            }
+            Card::Unimplemented { ref name, ref layout } => {
+                let mut s = String::new();
+                html!( s,
+                    div class="card_frame" {
+                        div class="card_inner" {
+                            p class="name" { ^name }
+                            p class="oracle_text" { "This type of card (" ^layout ") is not yet implemented. Go complain to the developer" }
+                        }
+                    }
+                )
+                    .unwrap();
+                s
+            }
+        }
     }
 }

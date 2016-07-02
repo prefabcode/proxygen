@@ -12,7 +12,9 @@ const ALLCARDS_JSON: &'static str = include_str!("AllCards.json"); //http://mtgj
 #[allow(non_snake_case)]
 #[derive(Deserialize, Debug, Clone)]
 struct DatabaseEntry {
+    layout: String,
     name: String,
+    sanetype: Option<String>,
     manaCost: Option<String>,
     supertypes: Option<Vec<String>>,
     types: Option<Vec<String>>,
@@ -20,6 +22,7 @@ struct DatabaseEntry {
     text: Option<String>,
     power: Option<String>,
     toughness: Option<String>,
+    loyalty: Option<u64>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -28,7 +31,9 @@ pub struct Database {
 }
 
 fn make_database() -> Database {
-    let bad_map: BTreeMap<String, DatabaseEntry> = serde_json::from_str(ALLCARDS_JSON).unwrap();
+    let sane_allcards_json = String::from(ALLCARDS_JSON).replace("\"type\":", "\"sanetype\":");
+    let bad_map: BTreeMap<String, DatabaseEntry> = serde_json::from_str(&sane_allcards_json)
+        .unwrap();
 
     let good_map = BTreeMap::from_iter(bad_map.iter().map(|(bad_key, value)| {
         let mut good_key = bad_key.clone();
@@ -49,44 +54,50 @@ lazy_static!{
 impl Database {
     pub fn get(&self, card_name: &str) -> Result<Card, ProxygenError> {
         let entry = match self.map.get(card_name) {
-            Some(v) => v,
+            Some(v) => v.clone(),
             None => return Err(ProxygenError::InvalidCardName(String::from(card_name))),
         };
 
+
         // TODO: Get rid of these clones, jesus christ
 
-        Ok(Card {
-            name: entry.name.clone(),
-            cost: entry.manaCost.clone().unwrap_or_default(),
-            typeline: {
-                let mut typeline = String::new();
-                for t in entry.supertypes.clone().unwrap_or_default() {
-                    typeline.push_str(&t);
-                    typeline.push_str(" ");
+        match entry.layout.as_str() {
+            "normal" => {
+                let types = entry.types.unwrap_or_default();
+                if types.contains(&String::from("Creature")) {
+                    Ok(Card::Creature {
+                        name: entry.name,
+                        manacost: entry.manaCost.unwrap_or_default(),
+                        typeline: entry.sanetype.unwrap_or_default(),
+                        text: entry.text.unwrap_or_default(),
+                        power: entry.power.unwrap_or_default(),
+                        toughness: entry.toughness.unwrap_or_default(),
+                    })
+                } else if types.contains(&String::from("Planeswalker")) {
+                    Ok(Card::Planeswalker {
+                        name: entry.name,
+                        manacost: entry.manaCost.unwrap_or_default(),
+                        typeline: entry.sanetype.unwrap_or_default(),
+                        text: entry.text.unwrap_or_default(),
+                        loyalty: entry.loyalty.unwrap_or_default(),
+                    })
+                } else {
+                    Ok(Card::Noncreature {
+                        name: entry.name,
+                        manacost: entry.manaCost.unwrap_or_default(),
+                        typeline: entry.sanetype.unwrap_or_default(),
+                        text: entry.text.unwrap_or_default(),
+                    })
+
                 }
-                for t in entry.types.clone().unwrap_or_default() {
-                    typeline.push_str(&t);
-                    typeline.push_str(" ");
-                }
-                if entry.subtypes.is_some() {
-                    typeline.push_str(" \u{2014}");
-                    for t in entry.subtypes.clone().unwrap_or_default() {
-                        typeline.push_str(" ");
-                        typeline.push_str(&t);
-                    }
-                }
-                typeline
-            },
-            text: entry.text.clone().unwrap_or_default(),
-            power_toughness: {
-                match entry.power.clone() {
-                    Some(pow) => {
-                        let tou = entry.toughness.clone().unwrap();
-                        Some((pow, tou))
-                    }
-                    None => None,
-                }
-            },
-        })
+            }
+            _ => {
+                Ok((Card::Unimplemented {
+                    name: entry.name,
+                    layout: entry.layout,
+                }))
+            }
+        }
+
     }
 }
