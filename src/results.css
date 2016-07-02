@@ -1,0 +1,26 @@
+/* lol comments */
+.card_frame {
+    border: 0.5mm solid black;
+    float: left;
+    width: 60mm;
+    height: 85mm
+}
+
+.card_inner {
+    padding: 2mm;
+}
+
+.name {
+    display:inline-block;
+    width: 70%;
+}
+
+.mana {
+    display:inline-block;
+    width: 30%;
+    text-align: right;
+}
+
+.power_toughness {
+    text-align: right;
+}
