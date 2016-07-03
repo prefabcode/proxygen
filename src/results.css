@@ -1,6 +1,9 @@
-/* lol comments */
+p {
+    margin: 1.5mm 0;
+}
+
 .card_frame {
-    border: 0.5mm solid black;
+    border: 0.5mm dashed black;
     float: left;
     width: 60mm;
     height: 85mm
@@ -10,6 +13,24 @@
     padding: 2mm;
     font-family: monospace;
     font-size: 3.5mm;
+}
+
+.split_left {
+    border-bottom: 0.5mm solid black;
+}
+
+.flip_top {
+    border-bottom: 0.5mm solid black;
+}
+
+.flip_bottom {
+    -ms-transform: rotate(180deg); /* IE 9 */
+    -webkit-transform: rotate(180deg); /* Chrome, Safari, Opera */
+    transform: rotate(180deg);
+}
+
+.flip_bottom .manacost {
+    display: none;
 }
 
 .name {

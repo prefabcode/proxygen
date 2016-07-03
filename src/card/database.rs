@@ -95,7 +95,7 @@ impl Database {
                     })
                 }
             }
-            "double-faced" | "split" => {
+            "double-faced" | "split" | "flip" => {
                 let names = match entry.names {
                     Some(v) => {
                         if v.len() != 2 {
@@ -130,6 +130,12 @@ impl Database {
                         Ok(Card::Split {
                             left: Box::new(first_card),
                             right: Box::new(second_card),
+                        })
+                    }
+                    "flip" => {
+                        Ok(Card::Flip {
+                            top: Box::new(first_card),
+                            bottom: Box::new(second_card),
                         })
                     }
                     _ => unreachable!(),

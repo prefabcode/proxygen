@@ -38,6 +38,10 @@ pub enum Card {
         left: Box<Card>,
         right: Box<Card>,
     },
+    Flip {
+        top: Box<Card>,
+        bottom: Box<Card>,
+    },
     Unimplemented {
         name: String,
         layout: String,
@@ -120,8 +124,7 @@ impl Card {
                     .unwrap();
                 s
             }
-            Card::DoubleFaced { .. } |
-            Card::Split { .. } => panic!("This shouldn't happen"),
+            ref err => panic!("This shouldn't happen. {:?}", err),
         }
     }
 
@@ -155,9 +158,32 @@ impl Card {
                 html!(s,
                     div class="card_frame" {
                         div class="card_inner" {
-                            ^PreEscaped(left_html)
-                            hr
-                            ^PreEscaped(right_html)
+                            div class="split_left" {
+                                ^PreEscaped(left_html)
+                            }
+                            div class="split_bottom" {
+                                ^PreEscaped(right_html)
+                            }
+                        }
+                    }
+                )
+                    .unwrap();
+                s
+            }
+            Card::Flip { ref top, ref bottom } => {
+                let top_html = top.inner_html();
+                let bottom_html = bottom.inner_html();
+
+                let mut s = String::new();
+                html!(s,
+                    div class="card_frame" {
+                        div class="card_inner" {
+                            div class="flip_top" {
+                                ^PreEscaped(top_html)
+                            }
+                            div class="flip_bottom" {
+                                ^PreEscaped(bottom_html)
+                            }
                         }
                     }
                 )
