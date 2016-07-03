@@ -95,7 +95,7 @@ fn main() {
                 }
                 Err(e) => {
                     *res.status_mut() = StatusCode::InternalServerError;
-                    return res.send(format!("An error happened interally that wasn't handled properly. Tell the developer '{:?}'"), e);
+                    return res.send(format!("An error happened interally that wasn't handled properly. Tell the developer {:?}", e));
                 }
             };
 
