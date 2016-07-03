@@ -107,8 +107,8 @@ impl Database {
                     None => return Err(ProxygenError::MulticardHasNoNames(entry.name)),
                 };
 
-                let first_name = &names[1];
-                let second_name = &names[0];
+                let first_name = &names[0];
+                let second_name = &names[1];
 
                 let mut first_entry = try!(self.get_entry(first_name));
                 let mut second_entry = try!(self.get_entry(second_name));;
