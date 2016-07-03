@@ -30,6 +30,10 @@ pub enum Card {
         typeline: String,
         text: String,
     },
+    DoubleFaced {
+        front: Box<Card>,
+        back: Box<Card>,
+    },
     Unimplemented {
         name: String,
         layout: String,
@@ -41,7 +45,6 @@ lazy_static!{
 }
 
 fn prettify_oracle_text(text: &str) -> String {
-    println!("{:#?}", text);
     RE.replace_all(&text.replace("\u{2212}", "&minus;").replace("\n", "<br>"),
                    "<i>$reminder</i>")
 }
@@ -112,6 +115,18 @@ impl Card {
                             p class="oracle_text" { ^PreEscaped(pretty_text)}
                         }
                     }
+                )
+                    .unwrap();
+                s
+            }
+            Card::DoubleFaced { ref front, ref back } => {
+                let front_html = front.to_html();
+                let back_html = back.to_html();
+
+                let mut s = String::new();
+                html!(s,
+                      ^PreEscaped(front_html)
+                      ^PreEscaped(back_html)
                 )
                     .unwrap();
                 s

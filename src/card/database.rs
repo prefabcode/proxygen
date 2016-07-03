@@ -15,6 +15,7 @@ struct DatabaseEntry {
     layout: String,
     name: String,
     sanetype: String,
+    names: Option<Vec<String>>,
     manaCost: Option<String>,
     supertypes: Option<Vec<String>>,
     types: Option<Vec<String>>,
@@ -50,45 +51,6 @@ lazy_static!{
     pub static ref DATABASE: Database = make_database();
 }
 
-fn parse_card(entry: DatabaseEntry) -> Card {
-    match entry.layout.as_str() {
-        "normal" => {
-            let types = entry.types.unwrap_or_default();
-            if types.contains(&String::from("Creature")) {
-                Card::Creature {
-                    name: entry.name,
-                    manacost: entry.manaCost.unwrap_or_default(),
-                    typeline: entry.sanetype,
-                    text: entry.text.unwrap_or_default(),
-                    power: entry.power.unwrap_or_default(),
-                    toughness: entry.toughness.unwrap_or_default(),
-                }
-            } else if types.contains(&String::from("Planeswalker")) {
-                Card::Planeswalker {
-                    name: entry.name,
-                    manacost: entry.manaCost.unwrap_or_default(),
-                    typeline: entry.sanetype,
-                    text: entry.text.unwrap_or_default(),
-                    loyalty: entry.loyalty.unwrap_or_default(),
-                }
-            } else {
-                Card::Noncreature {
-                    name: entry.name,
-                    manacost: entry.manaCost.unwrap_or_default(),
-                    typeline: entry.sanetype,
-                    text: entry.text.unwrap_or_default(),
-                }
-
-            }
-        }
-        _ => {
-            Card::Unimplemented {
-                name: entry.name,
-                layout: entry.layout,
-            }
-        }
-    }
-}
 
 impl Database {
     fn get_entry(&self, card_name: &str) -> Result<DatabaseEntry, ProxygenError> {
@@ -101,6 +63,64 @@ impl Database {
     pub fn get(&self, card_name: &str) -> Result<Card, ProxygenError> {
         let entry = try!(self.get_entry(card_name));
 
-        Ok(parse_card(entry))
+        self.parse_card(entry)
+    }
+
+    fn parse_card(&self, entry: DatabaseEntry) -> Result<Card, ProxygenError> {
+        match entry.layout.as_str() {
+            "normal" => {
+                let types = entry.types.unwrap_or_default();
+                if types.contains(&String::from("Creature")) {
+                    Ok(Card::Creature {
+                        name: entry.name,
+                        manacost: entry.manaCost.unwrap_or_default(),
+                        typeline: entry.sanetype,
+                        text: entry.text.unwrap_or_default(),
+                        power: entry.power.unwrap_or_default(),
+                        toughness: entry.toughness.unwrap_or_default(),
+                    })
+                } else if types.contains(&String::from("Planeswalker")) {
+                    Ok(Card::Planeswalker {
+                        name: entry.name,
+                        manacost: entry.manaCost.unwrap_or_default(),
+                        typeline: entry.sanetype,
+                        text: entry.text.unwrap_or_default(),
+                        loyalty: entry.loyalty.unwrap_or_default(),
+                    })
+                } else {
+                    Ok(Card::Noncreature {
+                        name: entry.name,
+                        manacost: entry.manaCost.unwrap_or_default(),
+                        typeline: entry.sanetype,
+                        text: entry.text.unwrap_or_default(),
+                    })
+                }
+            }
+            "double-faced" => {
+                let mut names = entry.names.unwrap_or_default();
+                let back_name = names.pop().unwrap_or_default();
+                let front_name = names.pop().unwrap_or_default();
+
+                let mut front_entry = try!(self.get_entry(&front_name));
+                let mut back_entry = try!(self.get_entry(&back_name));;
+
+                front_entry.layout = String::from("normal");
+                back_entry.layout = String::from("normal");
+
+                let front_card = try!(self.parse_card(front_entry));
+                let back_card = try!(self.parse_card(back_entry));
+
+                Ok(Card::DoubleFaced {
+                    front: Box::new(front_card),
+                    back: Box::new(back_card),
+                })
+            }
+            _ => {
+                Ok(Card::Unimplemented {
+                    name: entry.name,
+                    layout: entry.layout,
+                })
+            }
+        }
     }
 }
