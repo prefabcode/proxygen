@@ -33,7 +33,7 @@ use error::ProxygenError;
 const PROXYGEN_HTML: &'static str = include_str!("proxygen.html");
 const PROXYGEN_CSS: &'static str = include_str!("proxygen.css");
 const RESULTS_CSS: &'static str = include_str!("results.css");
-const MAX_CARDS: u64 = 200;
+const MAX_CARDS: u64 = 1000;
 
 lazy_static!{
     static ref RE: Regex = Regex::new(r"^\s*(\d+)?x?\s*(\D*?)\s*$").unwrap();
