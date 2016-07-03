@@ -4,6 +4,8 @@ use super::serde_json::Error as JsonError;
 pub enum ProxygenError {
     DecklistParseError(String),
     InvalidCardName(String),
+    MulticardHasNoNames(String),
+    MulticardHasMalformedNames(String),
     JsonError(JsonError),
 }
 

@@ -51,7 +51,6 @@ lazy_static!{
     pub static ref DATABASE: Database = make_database();
 }
 
-
 impl Database {
     fn get_entry(&self, card_name: &str) -> Result<DatabaseEntry, ProxygenError> {
         match self.map.get(card_name) {
@@ -68,7 +67,7 @@ impl Database {
 
     fn parse_card(&self, entry: DatabaseEntry) -> Result<Card, ProxygenError> {
         match entry.layout.as_str() {
-            "normal" => {
+            "normal" | "leveler" => {
                 let types = entry.types.unwrap_or_default();
                 if types.contains(&String::from("Creature")) {
                     Ok(Card::Creature {
@@ -96,24 +95,45 @@ impl Database {
                     })
                 }
             }
-            "double-faced" => {
-                let mut names = entry.names.unwrap_or_default();
-                let back_name = names.pop().unwrap_or_default();
-                let front_name = names.pop().unwrap_or_default();
+            "double-faced" | "split" => {
+                let names = match entry.names {
+                    Some(v) => {
+                        if v.len() != 2 {
+                            return Err(ProxygenError::MulticardHasMalformedNames(entry.name));
+                        } else {
+                            v
+                        }
+                    }
+                    None => return Err(ProxygenError::MulticardHasNoNames(entry.name)),
+                };
 
-                let mut front_entry = try!(self.get_entry(&front_name));
-                let mut back_entry = try!(self.get_entry(&back_name));;
+                let first_name = &names[1];
+                let second_name = &names[0];
 
-                front_entry.layout = String::from("normal");
-                back_entry.layout = String::from("normal");
+                let mut first_entry = try!(self.get_entry(first_name));
+                let mut second_entry = try!(self.get_entry(second_name));;
 
-                let front_card = try!(self.parse_card(front_entry));
-                let back_card = try!(self.parse_card(back_entry));
+                first_entry.layout = String::from("normal");
+                second_entry.layout = String::from("normal");
 
-                Ok(Card::DoubleFaced {
-                    front: Box::new(front_card),
-                    back: Box::new(back_card),
-                })
+                let first_card = try!(self.parse_card(first_entry));
+                let second_card = try!(self.parse_card(second_entry));
+
+                match entry.layout.as_str() {
+                    "double-faced" => {
+                        Ok(Card::DoubleFaced {
+                            front: Box::new(first_card),
+                            back: Box::new(second_card),
+                        })
+                    }
+                    "split" => {
+                        Ok(Card::Split {
+                            left: Box::new(first_card),
+                            right: Box::new(second_card),
+                        })
+                    }
+                    _ => unreachable!(),
+                }
             }
             _ => {
                 Ok(Card::Unimplemented {

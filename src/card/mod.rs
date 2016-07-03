@@ -34,6 +34,10 @@ pub enum Card {
         front: Box<Card>,
         back: Box<Card>,
     },
+    Split {
+        left: Box<Card>,
+        right: Box<Card>,
+    },
     Unimplemented {
         name: String,
         layout: String,
@@ -59,7 +63,7 @@ impl Card {
     }
 
     #[allow(cyclomatic_complexity)]
-    pub fn to_html(&self) -> String {
+    fn inner_html(&self) -> String {
         match *self {
             Card::Creature { ref name,
                              ref manacost,
@@ -71,15 +75,11 @@ impl Card {
                 let pretty_text = prettify_oracle_text(text);
                 let mut s = String::new();
                 html!( s,
-                    div class="card_frame" {
-                        div class="card_inner" {
-                            p class="name" { ^name }
-                            p class="manacost" { ^manacost }
-                            p class="typeline" { ^PreEscaped(escaped_typeline) }
-                            p class="oracle_text" { ^PreEscaped(pretty_text)}
-                            p class = "power_toughness" { ^power "/" ^toughness}
-                        }
-                    }
+                    p class="name" { ^name }
+                    p class="manacost" { ^manacost }
+                    p class="typeline" { ^PreEscaped(escaped_typeline) }
+                    p class="oracle_text" { ^PreEscaped(pretty_text)}
+                    p class = "power_toughness" { ^power "/" ^toughness}
                 )
                     .unwrap();
                 s
@@ -89,15 +89,11 @@ impl Card {
                 let pretty_text = prettify_oracle_text(text);
                 let mut s = String::new();
                 html!( s,
-                    div class="card_frame" {
-                        div class="card_inner" {
-                            p class="name" { ^name }
-                            p class="manacost" { ^manacost }
-                            p class="typeline" { ^PreEscaped(escaped_typeline) }
-                            p class="oracle_text" { ^PreEscaped(pretty_text)}
-                            p class = "loyalty" { ^loyalty }
-                        }
-                    }
+                    p class="name" { ^name }
+                    p class="manacost" { ^manacost }
+                    p class="typeline" { ^PreEscaped(escaped_typeline) }
+                    p class="oracle_text" { ^PreEscaped(pretty_text)}
+                    p class = "loyalty" { ^loyalty }
                 )
                     .unwrap();
                 s
@@ -107,26 +103,10 @@ impl Card {
                 let pretty_text = prettify_oracle_text(text);
                 let mut s = String::new();
                 html!( s,
-                    div class="card_frame" {
-                        div class="card_inner" {
-                            p class="name" { ^name }
-                            p class="manacost" { ^manacost }
-                            p class="typeline" { ^PreEscaped(escaped_typeline) }
-                            p class="oracle_text" { ^PreEscaped(pretty_text)}
-                        }
-                    }
-                )
-                    .unwrap();
-                s
-            }
-            Card::DoubleFaced { ref front, ref back } => {
-                let front_html = front.to_html();
-                let back_html = back.to_html();
-
-                let mut s = String::new();
-                html!(s,
-                      ^PreEscaped(front_html)
-                      ^PreEscaped(back_html)
+                    p class="name" { ^name }
+                    p class="manacost" { ^manacost }
+                    p class="typeline" { ^PreEscaped(escaped_typeline) }
+                    p class="oracle_text" { ^PreEscaped(pretty_text)}
                 )
                     .unwrap();
                 s
@@ -134,10 +114,62 @@ impl Card {
             Card::Unimplemented { ref name, ref layout } => {
                 let mut s = String::new();
                 html!( s,
+                    p class="name" { ^name }
+                    p class="oracle_text" { "This type of card (" ^layout ") is not yet implemented. Go complain to the developer" }
+                )
+                    .unwrap();
+                s
+            }
+            Card::DoubleFaced { .. } |
+            Card::Split { .. } => panic!("This shouldn't happen"),
+        }
+    }
+
+    pub fn to_html(&self) -> String {
+        match *self {
+            Card::DoubleFaced { ref front, ref back } => {
+                let front_html = front.inner_html();
+                let back_html = back.inner_html();
+
+                let mut s = String::new();
+                html!(s,
+                      div class="card_frame" {
+                          div class="card_inner" {
+                            ^PreEscaped(front_html)
+                          }
+                      }
                     div class="card_frame" {
                         div class="card_inner" {
-                            p class="name" { ^name }
-                            p class="oracle_text" { "This type of card (" ^layout ") is not yet implemented. Go complain to the developer" }
+                          ^PreEscaped(back_html)
+                        }
+                    }
+                )
+                    .unwrap();
+                s
+            }
+            Card::Split { ref left, ref right } => {
+                let left_html = left.inner_html();
+                let right_html = right.inner_html();
+
+                let mut s = String::new();
+                html!(s,
+                    div class="card_frame" {
+                        div class="card_inner" {
+                            ^PreEscaped(left_html)
+                            hr
+                            ^PreEscaped(right_html)
+                        }
+                    }
+                )
+                    .unwrap();
+                s
+            }
+            _ => {
+                let mut s = String::new();
+                html!( s,
+                    div class="card_frame" {
+                        div class="card_inner" {
+                            ^PreEscaped(self.inner_html())
                         }
                     }
                 )
