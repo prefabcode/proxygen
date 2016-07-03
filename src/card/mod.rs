@@ -54,6 +54,7 @@ lazy_static!{
 
 fn prettify_oracle_text(text: &str) -> String {
     RE.replace_all(text, "<i>$reminder</i>")
+        .replace("\n", "<br>")
 }
 
 impl Card {
