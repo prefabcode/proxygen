@@ -14,7 +14,7 @@ const ALLCARDS_JSON: &'static str = include_str!("AllCards.json"); //http://mtgj
 struct DatabaseEntry {
     layout: String,
     name: String,
-    sanetype: Option<String>,
+    sanetype: String,
     manaCost: Option<String>,
     supertypes: Option<Vec<String>>,
     types: Option<Vec<String>>,
@@ -25,7 +25,7 @@ struct DatabaseEntry {
     loyalty: Option<u64>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Debug)]
 pub struct Database {
     map: BTreeMap<String, DatabaseEntry>,
 }
@@ -35,15 +35,13 @@ fn make_database() -> Database {
     let bad_map: BTreeMap<String, DatabaseEntry> = serde_json::from_str(&sane_allcards_json)
         .unwrap();
 
-    let good_map = BTreeMap::from_iter(bad_map.iter().map(|(bad_key, value)| {
-        let mut good_key = bad_key.clone();
-        let good_value = value.clone();
+    let good_map: BTreeMap<String, DatabaseEntry> = BTreeMap::from_iter(bad_map.iter()
+        .map(|(key, value)| (key.clone(), value.clone()))
+        .filter(&|(_, ref value)| {
+            vec!["normal", "split", "flip", "double-faced", "leveler"].contains(value.layout)
+        })
+        .map(|(key, value)| (key.replace("\u{fb}", "u"), value))); // û -> u, example: Lim-Dûl the Necromancer
 
-        good_key = good_key.replace("\u{fb}", "u");
-
-        (good_key, good_value)
-
-    }));
     Database { map: good_map }
 }
 
