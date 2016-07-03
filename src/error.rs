@@ -2,6 +2,7 @@ use super::serde_json::Error as JsonError;
 
 #[derive(Debug)]
 pub enum ProxygenError {
+    TooManyCards,
     DecklistParseError(String),
     InvalidCardName(String),
     MulticardHasNoNames(String),

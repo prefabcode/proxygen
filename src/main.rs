@@ -33,6 +33,7 @@ use error::ProxygenError;
 const PROXYGEN_HTML: &'static str = include_str!("proxygen.html");
 const PROXYGEN_CSS: &'static str = include_str!("proxygen.css");
 const RESULTS_CSS: &'static str = include_str!("results.css");
+const MAX_CARDS: u64 = 200;
 
 lazy_static!{
     static ref RE: Regex = Regex::new(r"^\s*(\d+)?x?\s*(\D*?)\s*$").unwrap();
@@ -53,17 +54,23 @@ pub fn sanitize_name(name: &str) -> String {
         .replace("\u{fb}", "u")
 }
 
-fn parse_decklist(decklist: &str) -> Result<Vec<(u32, Card)>, ProxygenError> {
-    decklist.lines()
-        .map(|entry| entry.trim())
-        .filter(|entry| !entry.is_empty())
-        .map(|card_entry| {
-            match RE.captures(card_entry) {
+fn parse_decklist(decklist: &str) -> Result<Vec<(u64, Card)>, ProxygenError> {
+    let mut count = 0;
+    let mut out = Vec::new();
+    for entry in decklist.lines() {
+        let trimmed = entry.trim();
+        if !entry.is_empty() {
+            let (n, c) = match RE.captures(trimmed) {
                 Some(captures) => {
-                    let amount: u32 = match captures.at(1) {
+                    let amount: u64 = match captures.at(1) {
                         Some(v) => v.parse().unwrap(),
                         None => 1,
                     };
+
+                    count += amount;
+                    if count > MAX_CARDS {
+                        return Err(ProxygenError::TooManyCards);
+                    }
 
                     let card_name = captures.at(2).unwrap();
 
@@ -74,13 +81,14 @@ fn parse_decklist(decklist: &str) -> Result<Vec<(u32, Card)>, ProxygenError> {
                         }
                     };
 
-                    Ok((amount, card))
+                    (amount, card)
                 }
-                None => Err(ProxygenError::DecklistParseError(String::from(card_entry))),
-            }
-
-        })
-        .collect()
+                None => return Err(ProxygenError::DecklistParseError(String::from(trimmed))),
+            };
+            out.push((n, c));
+        };
+    }
+    Ok(out)
 }
 
 fn main() {
@@ -97,6 +105,10 @@ fn main() {
 
             let parsed = match parse_decklist(&decklist) {
                 Ok(v) => v,
+                Err(ProxygenError::TooManyCards) => {
+                    *res.status_mut() = StatusCode::BadRequest;
+                    return res.send(format!("Too many proxies requested. Request at most {} proxies at a time", MAX_CARDS))
+                }
                 Err(ProxygenError::InvalidCardName(s)) => {
                     *res.status_mut() = StatusCode::BadRequest;
                     return res.send(format!("Invalid card name: {:?}", s));
@@ -111,7 +123,7 @@ fn main() {
                 }
                 Err(e) => {
                     *res.status_mut() = StatusCode::InternalServerError;
-                    return res.send(format!("An error happened interally that wasn't handled properly. Tell the developer {:?}", e));
+                    return res.send(format!("An error happened interally that wasn't handled properly. Tell the developer '{:?}'", e));
                 }
             };
 
