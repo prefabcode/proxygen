@@ -53,12 +53,7 @@ lazy_static!{
 }
 
 fn prettify_oracle_text(text: &str) -> String {
-    RE.replace_all(&text.replace("\u{2212}", "&minus;").replace("\n", "<br>"),
-                   "<i>$reminder</i>")
-}
-
-fn escape_typeline_dash(text: &str) -> String {
-    text.replace("\u{2014}", "&mdash;")
+    RE.replace_all(text, "<i>$reminder</i>")
 }
 
 impl Card {
@@ -75,27 +70,25 @@ impl Card {
                              ref text,
                              ref power,
                              ref toughness } => {
-                let escaped_typeline = escape_typeline_dash(typeline);
                 let pretty_text = prettify_oracle_text(text);
                 let mut s = String::new();
                 html!( s,
                     p class="name" { ^name }
                     p class="manacost" { ^manacost }
-                    p class="typeline" { ^PreEscaped(escaped_typeline) }
+                    p class="typeline" { ^typeline }
                     p class="oracle_text" { ^PreEscaped(pretty_text)}
-                    p class = "power_toughness" { ^power "/" ^toughness}
+                    p class = "power_toughness" { ^power "/" ^toughness }
                 )
                     .unwrap();
                 s
             }
             Card::Planeswalker { ref name, ref manacost, ref typeline, ref text, ref loyalty } => {
-                let escaped_typeline = escape_typeline_dash(typeline);
                 let pretty_text = prettify_oracle_text(text);
                 let mut s = String::new();
                 html!( s,
                     p class="name" { ^name }
                     p class="manacost" { ^manacost }
-                    p class="typeline" { ^PreEscaped(escaped_typeline) }
+                    p class="typeline" { ^typeline }
                     p class="oracle_text" { ^PreEscaped(pretty_text)}
                     p class = "loyalty" { ^loyalty }
                 )
@@ -103,13 +96,12 @@ impl Card {
                 s
             }
             Card::Noncreature { ref name, ref manacost, ref typeline, ref text } => {
-                let escaped_typeline = escape_typeline_dash(typeline);
                 let pretty_text = prettify_oracle_text(text);
                 let mut s = String::new();
                 html!( s,
                     p class="name" { ^name }
                     p class="manacost" { ^manacost }
-                    p class="typeline" { ^PreEscaped(escaped_typeline) }
+                    p class="typeline" { ^typeline }
                     p class="oracle_text" { ^PreEscaped(pretty_text)}
                 )
                     .unwrap();

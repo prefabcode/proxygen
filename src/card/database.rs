@@ -4,6 +4,8 @@ use super::super::error::ProxygenError;
 
 use super::super::serde_json;
 
+use super::super::sanitize_name;
+
 use std::iter::FromIterator;
 
 const ALLCARDS_JSON: &'static str = include_str!("AllCards.json"); //http://mtgjson.com/json/AllCards.json.zip
@@ -38,11 +40,11 @@ fn make_database() -> Database {
 
     let good_map: BTreeMap<String, DatabaseEntry> = BTreeMap::from_iter(bad_map.iter()
         .map(|(key, value)| (key.clone(), value.clone()))
+        .map(|(key, value)| (sanitize_name(&key), value))
         .filter(|&(_, ref value)| {
             vec!["normal", "split", "flip", "double-faced", "leveler"]
                 .contains(&value.layout.as_str())
-        })
-        .map(|(key, value)| (key.replace("\u{fb}", "u"), value))); // û -> u, example: Lim-Dûl the Necromancer
+        })); // û -> u, example: Lim-Dûl the Necromancer
 
     Database { map: good_map }
 }
@@ -53,9 +55,10 @@ lazy_static!{
 
 impl Database {
     fn get_entry(&self, card_name: &str) -> Result<DatabaseEntry, ProxygenError> {
-        match self.map.get(card_name) {
+        let sane_card_name = sanitize_name(card_name);
+        match self.map.get(&sane_card_name) {
             Some(v) => Ok(v.clone()),
-            None => Err(ProxygenError::InvalidCardName(String::from(card_name))),
+            None => Err(ProxygenError::InvalidCardName(String::from(sane_card_name))),
         }
     }
 

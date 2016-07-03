@@ -38,6 +38,10 @@ lazy_static!{
     static ref RE: Regex = Regex::new(r"^\s*(\d+)?x?\s*(\D*?)\s*$").unwrap();
 }
 
+pub fn sanitize_name(name: &str) -> String {
+    name.to_lowercase().replace("\u{fb}", "u").replace("\u{e6}", "ae")
+}
+
 fn parse_decklist(decklist: &str) -> Result<Vec<(u32, Card)>, ProxygenError> {
     decklist.lines()
         .map(|entry| entry.trim())
@@ -54,7 +58,9 @@ fn parse_decklist(decklist: &str) -> Result<Vec<(u32, Card)>, ProxygenError> {
 
                     let card = match card::Card::from_name(card_name) {
                         Ok(v) => v,
-                        Err(e) => return Err(e),
+                        Err(e) => {
+                            return Err(e);
+                        }
                     };
 
                     Ok((amount, card))
@@ -67,11 +73,10 @@ fn parse_decklist(decklist: &str) -> Result<Vec<(u32, Card)>, ProxygenError> {
 }
 
 fn main() {
-    let mut server = Nickel::new();
-
-    // Build database
     println!("Building database..");
     Card::from_name("Island").unwrap_or_else(|e| panic!("Error building database: {:?}", e));
+
+    let mut server = Nickel::new();
 
     server.utilize(router!{
         post "/proxygen" => |req, mut res| {
@@ -111,6 +116,7 @@ fn main() {
             let mut doc = String::new();
             html!(doc, html {
                 head {
+                    meta charset="UTF-8"
                     style {
                         ^PreEscaped(RESULTS_CSS)
                     }
