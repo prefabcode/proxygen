@@ -76,6 +76,7 @@ fn main() {
     server.utilize(router!{
         post "/proxygen" => |req, mut res| {
             let form_body = try_with!(res, req.form_body());
+            println!("{:?}", form_body);
             let decklist = String::from(form_body.get("decklist").unwrap());
 
             let parsed = match parse_decklist(&decklist) {
@@ -88,8 +89,13 @@ fn main() {
                     *res.status_mut() = StatusCode::BadRequest;
                     return res.send(format!("Error parsing decklist at line: {:?}", s));
                 },
+                Err(ProxygenError::MulticardHasMalformedNames(s)) => {
+                    *res.status_mut() = StatusCode::InternalServerError;
+                    return res.send(format!("A split/flip/transform has more than 2 different forms. Are you using unhinged/unglued cards? Card: {:?}", s))
+                }
                 Err(e) => {
-                    panic!("unimplemented error code {:?}", e)
+                    *res.status_mut() = StatusCode::InternalServerError;
+                    return res.send(format!("An error happened interally that wasn't handled properly. Tell the developer '{:?}'"), e);
                 }
             };
 
@@ -102,7 +108,6 @@ fn main() {
                 }
             }
 
-            println!("{:?}", form_body);
             let mut doc = String::new();
             html!(doc, html {
                 head {
