@@ -36,7 +36,8 @@ const RESULTS_CSS: &'static str = include_str!("results.css");
 const MAX_CARDS: u64 = 1000;
 
 lazy_static!{
-    static ref RE: Regex = Regex::new(r"^\s*(\d+)?x?\s*(\D*?)\s*$").unwrap();
+    static ref BASE_RE: Regex = Regex::new(r"(\d+)?x?\s*(\D*?)\s*$").unwrap();
+    static ref SPLIT_RE: Regex = Regex::new(r"(.+?)\s*/+\s*.+").unwrap();
 }
 
 pub fn sanitize_name(name: &str) -> String {
@@ -60,8 +61,9 @@ fn parse_decklist(decklist: &str) -> Result<Vec<(u64, Card)>, ProxygenError> {
     for entry in decklist.lines() {
         let trimmed = entry.trim();
         if !entry.is_empty() {
-            let (n, c) = match RE.captures(trimmed) {
+            let (n, c) = match BASE_RE.captures(trimmed) {
                 Some(captures) => {
+                    println!("captures: {:?}", captures);
                     let amount: u64 = match captures.at(1) {
                         Some(v) => v.parse().unwrap(),
                         None => 1,
@@ -74,7 +76,12 @@ fn parse_decklist(decklist: &str) -> Result<Vec<(u64, Card)>, ProxygenError> {
 
                     let card_name = captures.at(2).unwrap();
 
-                    let card = match card::Card::from_name(card_name) {
+                    let sane_card_name = match SPLIT_RE.captures(card_name) {
+                        Some(split_captures) => split_captures.at(1).unwrap(),
+                        None => card_name,
+                    };
+
+                    let card = match card::Card::from_name(sane_card_name) {
                         Ok(v) => v,
                         Err(e) => {
                             return Err(e);
