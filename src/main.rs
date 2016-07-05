@@ -147,6 +147,7 @@ fn main() {
             html!(doc, html {
                 head {
                     meta charset="UTF-8"
+                    title { "proxygen" }
                     style {
                         ^PreEscaped(RESULTS_CSS)
                     }
