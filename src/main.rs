@@ -63,7 +63,6 @@ fn parse_decklist(decklist: &str) -> Result<Vec<(u64, Card)>, ProxygenError> {
         if !entry.is_empty() {
             let (n, c) = match BASE_RE.captures(trimmed) {
                 Some(captures) => {
-                    println!("captures: {:?}", captures);
                     let amount: u64 = match captures.at(1) {
                         Some(v) => v.parse().unwrap(),
                         None => 1,
