@@ -15,7 +15,7 @@ use maud::PreEscaped;
 
 #[macro_use]
 extern crate nickel;
-use nickel::{Nickel, FormBody, MediaType};
+use nickel::{Nickel, HttpRouter, FormBody};
 use nickel::status::StatusCode;
 
 extern crate regex;
@@ -101,123 +101,113 @@ fn main() {
 
     let mut server = Nickel::new();
 
-    server.utilize(router!{
-        post "/proxygen" => |req, mut res| {
-            let form_body = try_with!(res, req.form_body());
-            println!("{:?}", form_body);
-            let decklist = String::from(form_body.get("decklist").unwrap());
-
-            let parsed = match parse_decklist(&decklist) {
-                Ok(v) => v,
-                Err(ProxygenError::TooManyCards) => {
-                    *res.status_mut() = StatusCode::BadRequest;
-                    return res.send(format!("Too many proxies requested. Request at most {} proxies at a time", MAX_CARDS))
-                }
-                Err(ProxygenError::InvalidCardName(s)) => {
-                    *res.status_mut() = StatusCode::BadRequest;
-                    return res.send(format!("Invalid card name: {:?}", s));
-                },
-                Err(ProxygenError::DecklistParseError(s)) => {
-                    *res.status_mut() = StatusCode::BadRequest;
-                    return res.send(format!("Error parsing decklist at line: {:?}", s));
-                },
-                Err(ProxygenError::MulticardHasMalformedNames(s)) => {
-                    *res.status_mut() = StatusCode::InternalServerError;
-                    return res.send(format!("A split/flip/transform has more than 2 different forms. Are you using unhinged/unglued cards? Card: {:?}", s))
-                }
-                Err(e) => {
-                    *res.status_mut() = StatusCode::InternalServerError;
-                    return res.send(format!("An error happened interally that wasn't handled properly. Tell the developer '{:?}'", e));
-                }
-            };
-
-            let mut div_chain = String::new();
-
-            for pair in parsed {
-                let (n, card) = pair;
-                for _ in 0..n {
-                    div_chain.push_str(&card.to_html());
+    server.get("/proxygen", middleware!(|_req, res| {
+        let mut doc = String::new();
+        html!(doc, html {
+            head {
+                meta charset="UTF-8"
+                title { "Proxygen" }
+                style {
+                    ^PreEscaped(PROXYGEN_CSS)
                 }
             }
-
-            let mut doc = String::new();
-            html!(doc, html {
-                head {
-                    meta charset="UTF-8"
-                    title { "Proxygen" }
-                    style {
-                        ^PreEscaped(RESULTS_CSS)
-                    }
-                }
-                body {
-                    ^PreEscaped(div_chain)
-                }
-            }).unwrap();
-            return res.send(doc)
-        }
-    });
-
-    // Static files
-    server.utilize(router! {
-        get "/proxygen.css" => |_req, mut res| {
-            res.set(MediaType::Css);
-
-            return res.send(PROXYGEN_CSS)
-        }
-        get "/proxygen" => |_req, res| {
-            let mut doc = String::new();
-            html!(doc, html {
-                head {
-                    meta charset="UTF-8"
-                    title { "Proxygen" }
-                    style {
-                        ^PreEscaped(PROXYGEN_CSS)
-                    }
-                }
-                body {
-                    div id="surround" {
-                        div id="content" {
-                            h1 { "Shitty Proxy Generator" }
-                            p { "Decklist:" }
-                            form method="post" {
-                                textarea name="decklist" class="decklist" {
-                                  "1 Snapcaster Mage\r\n"
-                                  "1x Ponder\r\n"
-                                  "Stomping Ground\r\n"
-                                  "Jace, the Mind Sculptor\r\n"
-                                  "Delver of Secrets\r\n"
-                                  "Ice\r\n"
-                                  "Fire // Ice\r\n"
-                                  "Akki Lavarunner\r\n"
-                                  "Echo Mage\r\n"
-                                  "Æthersnipe\r\n"
-                                  "Aethersnipe\r\n"
-                                }
-                                br {}
-                                input type="submit" {}
+            body {
+                div id="surround" {
+                    div id="content" {
+                        h1 { "Shitty Proxy Generator" }
+                        p { "Decklist:" }
+                        form method="post" {
+                            textarea name="decklist" class="decklist" {
+                              "1 Snapcaster Mage\r\n"
+                              "1x Ponder\r\n"
+                              "Stomping Ground\r\n"
+                              "Jace, the Mind Sculptor\r\n"
+                              "Delver of Secrets\r\n"
+                              "Ice\r\n"
+                              "Fire // Ice\r\n"
+                              "Akki Lavarunner\r\n"
+                              "Echo Mage\r\n"
+                              "Æthersnipe\r\n"
+                              "Aethersnipe\r\n"
                             }
                             br {}
-                            p { "Please report any errors"
-                                "(Misdisplayed cards, cards that don't process, etc.)"
-                                "to the issue tracker on my"
-                                a href="https://github.com/Dryvnt/proxygen" {
-                                    "Github project page"
-                                }
+                            input type="submit" {}
+                        }
+                        br {}
+                        p { "Please report any errors "
+                            "(Misdisplayed cards, cards that don't process, etc.) "
+                            "to the issue tracker on my "
+                            a href="https://github.com/Dryvnt/proxygen" {
+                                "Github project page"
                             }
-                            br {}
-                            p {
-                                "I make no attempt at supporting Unhinged or Unglued."
-                                "While you can still get proxies of cards from those sets,"
-                                "your results may vary. Please do not report errors specific"
-                                "to Un-cards."
-                            }
+                        }
+                        br {}
+                        p {
+                            "I make no attempt at supporting Unhinged or Unglued."
+                            "While you can still get proxies of cards from those sets,"
+                            "your results may vary. Please do not report errors specific"
+                            "to Un-cards."
                         }
                     }
                 }
-            }).unwrap();
-            return res.send(doc)
+            }
+        }).unwrap();
+        return res.send(doc)
+    }));
+
+    server.post("/proxygen", middleware!(|req, mut res| {
+        let form_body = try_with!(res, req.form_body());
+        println!("{:?}", form_body);
+        let decklist = String::from(form_body.get("decklist").unwrap());
+
+        let parsed = match parse_decklist(&decklist) {
+            Ok(v) => v,
+            Err(ProxygenError::TooManyCards) => {
+                *res.status_mut() = StatusCode::BadRequest;
+                return res.send(format!("Too many proxies requested. Request at most {} proxies at a time", MAX_CARDS))
+            }
+            Err(ProxygenError::InvalidCardName(s)) => {
+                *res.status_mut() = StatusCode::BadRequest;
+                return res.send(format!("Invalid card name: {:?}", s));
+            },
+            Err(ProxygenError::DecklistParseError(s)) => {
+                *res.status_mut() = StatusCode::BadRequest;
+                return res.send(format!("Error parsing decklist at line: {:?}", s));
+            },
+            Err(ProxygenError::MulticardHasMalformedNames(s)) => {
+                *res.status_mut() = StatusCode::InternalServerError;
+                return res.send(format!("A split/flip/transform has more than 2 different forms. Are you using unhinged/unglued cards? Card: {:?}", s))
+            }
+            Err(e) => {
+                *res.status_mut() = StatusCode::InternalServerError;
+                return res.send(format!("An error happened interally that wasn't handled properly. Tell the developer '{:?}'", e));
+            }
+        };
+
+        let mut div_chain = String::new();
+
+        for pair in parsed {
+            let (n, card) = pair;
+            for _ in 0..n {
+                div_chain.push_str(&card.to_html());
+            }
         }
-    });
+
+        let mut doc = String::new();
+        html!(doc, html {
+            head {
+                meta charset="UTF-8"
+                title { "Proxygen" }
+                style {
+                    ^PreEscaped(RESULTS_CSS)
+                }
+            }
+            body {
+                ^PreEscaped(div_chain)
+            }
+        }).unwrap();
+        return res.send(doc)
+    }));
 
     server.listen("127.0.0.1:6767");
 }
