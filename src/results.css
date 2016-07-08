@@ -6,7 +6,8 @@ p {
     border: 0.5mm dashed black;
     float: left;
     width: 60mm;
-    height: 85mm
+    height: 85mm;
+    page-break-inside: avoid;
 }
 
 .card_inner {
