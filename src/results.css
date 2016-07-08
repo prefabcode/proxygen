@@ -1,5 +1,8 @@
 p {
-    margin: 1.5mm 0;
+    margin-top: 0mm;
+    margin-bottom: 1mm;
+    margin-right: 0mm;
+    margin-left: 0mm;
 }
 
 .card_frame {
@@ -8,20 +11,25 @@ p {
     width: 60mm;
     height: 85mm;
     page-break-inside: avoid;
+    overflow: hidden;
 }
 
+@import url(https://fonts.googleapis.com/css?family=Sorts+Mill+Goudy);
+
 .card_inner {
-    padding: 2mm;
-    font-family: monospace;
-    font-size: 3.5mm;
+    padding: 1.5mm;
+    font-family: 'Sorts Mill Goudy', monospace;
+    font-size: 3.75mm;
 }
 
 .split_left {
     border-bottom: 0.5mm solid black;
+    margin-bottom: 1mm;
 }
 
 .flip_top {
     border-bottom: 0.5mm solid black;
+    margin-bottom: 1mm;
 }
 
 .flip_bottom {
@@ -46,7 +54,7 @@ p {
     text-align: right;
 }
 
-.oracle_text {
+.oracle_p {
     font-size: 75%;
 }
 

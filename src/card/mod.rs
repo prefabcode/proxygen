@@ -54,7 +54,9 @@ lazy_static!{
 
 fn prettify_oracle_text(text: &str) -> String {
     RE.replace_all(text, "<i>$reminder</i>")
-        .replace("\n", "<br>")
+        .lines()
+        .map(|line| format!("<p class=\"oracle_p\">{}</p>", line))
+        .collect()
 }
 
 impl Card {
@@ -77,7 +79,7 @@ impl Card {
                     p class="name" { ^name }
                     p class="manacost" { ^manacost }
                     p class="typeline" { ^typeline }
-                    p class="oracle_text" { ^PreEscaped(pretty_text)}
+                    div class="oracle_div" { ^PreEscaped(pretty_text)}
                     p class = "power_toughness" { ^power "/" ^toughness }
                 )
                     .unwrap();
@@ -90,7 +92,7 @@ impl Card {
                     p class="name" { ^name }
                     p class="manacost" { ^manacost }
                     p class="typeline" { ^typeline }
-                    p class="oracle_text" { ^PreEscaped(pretty_text)}
+                    div class="oracle_div" { ^PreEscaped(pretty_text)}
                     p class = "loyalty" { ^loyalty }
                 )
                     .unwrap();
@@ -103,7 +105,7 @@ impl Card {
                     p class="name" { ^name }
                     p class="manacost" { ^manacost }
                     p class="typeline" { ^typeline }
-                    p class="oracle_text" { ^PreEscaped(pretty_text)}
+                    div class="oracle_div" { ^PreEscaped(pretty_text)}
                 )
                     .unwrap();
                 s
@@ -112,7 +114,7 @@ impl Card {
                 let mut s = String::new();
                 html!( s,
                     p class="name" { ^name }
-                    p class="oracle_text" { "This type of card (" ^layout ") is not yet implemented. Go complain to the developer" }
+                    div class="oracle_div" { "This type of card (" ^layout ") is not yet implemented. Go complain to the developer" }
                 )
                     .unwrap();
                 s
