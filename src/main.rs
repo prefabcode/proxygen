@@ -29,8 +29,6 @@ use card::Card;
 mod error;
 use error::ProxygenError;
 
-
-const PROXYGEN_HTML: &'static str = include_str!("proxygen.html");
 const PROXYGEN_CSS: &'static str = include_str!("proxygen.css");
 const RESULTS_CSS: &'static str = include_str!("results.css");
 const MAX_CARDS: u64 = 1000;
@@ -146,7 +144,7 @@ fn main() {
             html!(doc, html {
                 head {
                     meta charset="UTF-8"
-                    title { "proxygen" }
+                    title { "Proxygen" }
                     style {
                         ^PreEscaped(RESULTS_CSS)
                     }
@@ -167,7 +165,57 @@ fn main() {
             return res.send(PROXYGEN_CSS)
         }
         get "/proxygen" => |_req, res| {
-            return res.send(PROXYGEN_HTML)
+            let mut doc = String::new();
+            html!(doc, html {
+                head {
+                    meta charset="UTF-8"
+                    title { "Proxygen" }
+                    style {
+                        ^PreEscaped(PROXYGEN_CSS)
+                    }
+                }
+                body {
+                    div id="surround" {
+                        div id="content" {
+                            h1 { "Shitty Proxy Generator" }
+                            p { "Decklist:" }
+                            form method="post" {
+                                textarea name="decklist" class="decklist" {
+                                  "1 Snapcaster Mage\r\n"
+                                  "1x Ponder\r\n"
+                                  "Stomping Ground\r\n"
+                                  "Jace, the Mind Sculptor\r\n"
+                                  "Delver of Secrets\r\n"
+                                  "Ice\r\n"
+                                  "Fire // Ice\r\n"
+                                  "Akki Lavarunner\r\n"
+                                  "Echo Mage\r\n"
+                                  "Æthersnipe\r\n"
+                                  "Aethersnipe\r\n"
+                                }
+                                br {}
+                                input type="submit" {}
+                            }
+                            br {}
+                            p { "Please report any errors"
+                                "(Misdisplayed cards, cards that don't process, etc.)"
+                                "to the issue tracker on my"
+                                a href="https://github.com/Dryvnt/proxygen" {
+                                    "Github project page"
+                                }
+                            }
+                            br {}
+                            p {
+                                "I make no attempt at supporting Unhinged or Unglued."
+                                "While you can still get proxies of cards from those sets,"
+                                "your results may vary. Please do not report errors specific"
+                                "to Un-cards."
+                            }
+                        }
+                    }
+                }
+            }).unwrap();
+            return res.send(doc)
         }
     });
 
