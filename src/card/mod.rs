@@ -59,6 +59,18 @@ fn prettify_oracle_text(text: &str) -> String {
         .collect()
 }
 
+fn base_inner_html(name: &str, manacost: &str, typeline: &str, text: &str) -> String {
+    let pretty_text = prettify_oracle_text(text);
+    let mut s = String::new();
+    html!( s,
+        p class="name" { ^name }
+        p class="manacost" { ^manacost }
+        p class="typeline" { ^typeline }
+        div class="oracle_div" { ^PreEscaped(pretty_text)}
+    ).unwrap();
+    s
+}
+
 impl Card {
     pub fn from_name(name: &str) -> Result<Card, ProxygenError> {
         DATABASE.get(name)
@@ -73,39 +85,27 @@ impl Card {
                              ref text,
                              ref power,
                              ref toughness } => {
-                let pretty_text = prettify_oracle_text(text);
                 let mut s = String::new();
                 html!( s,
-                    p class="name" { ^name }
-                    p class="manacost" { ^manacost }
-                    p class="typeline" { ^typeline }
-                    div class="oracle_div" { ^PreEscaped(pretty_text)}
+                    ^PreEscaped(base_inner_html(name, manacost, typeline, text))
                     p class = "power_toughness" { ^power "/" ^toughness }
                 )
                     .unwrap();
                 s
             }
             Card::Planeswalker { ref name, ref manacost, ref typeline, ref text, ref loyalty } => {
-                let pretty_text = prettify_oracle_text(text);
                 let mut s = String::new();
                 html!( s,
-                    p class="name" { ^name }
-                    p class="manacost" { ^manacost }
-                    p class="typeline" { ^typeline }
-                    div class="oracle_div" { ^PreEscaped(pretty_text)}
+                    ^PreEscaped(base_inner_html(name, manacost, typeline, text))
                     p class = "loyalty" { ^loyalty }
                 )
                     .unwrap();
                 s
             }
             Card::Noncreature { ref name, ref manacost, ref typeline, ref text } => {
-                let pretty_text = prettify_oracle_text(text);
                 let mut s = String::new();
                 html!( s,
-                    p class="name" { ^name }
-                    p class="manacost" { ^manacost }
-                    p class="typeline" { ^typeline }
-                    div class="oracle_div" { ^PreEscaped(pretty_text)}
+                    ^PreEscaped(base_inner_html(name, manacost, typeline, text))
                 )
                     .unwrap();
                 s
