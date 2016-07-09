@@ -115,7 +115,6 @@ fn main() {
                 div id="surround" {
                     div id="content" {
                         h1 { "Shitty Proxy Generator" }
-                        p { "Decklist:" }
                         form method="post" {
                             textarea name="decklist" class="decklist" {
                               "1 Snapcaster Mage\r\n"
@@ -130,10 +129,8 @@ fn main() {
                               "Æthersnipe\r\n"
                               "Aethersnipe\r\n"
                             }
-                            br {}
-                            input type="submit" {}
+                            input type="submit" /
                         }
-                        br {}
                         p { "Please report any errors "
                             "to the issue tracker on my "
                             a href="https://github.com/Dryvnt/proxygen" {
