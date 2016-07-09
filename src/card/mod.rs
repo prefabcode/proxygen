@@ -65,11 +65,12 @@ fn base_inner_html(name: &str, manacost: &str, typeline: &str, text: &str) -> St
     html!( s,
         div class="name_mana_line" {
             p class="name" { ^name }
-            p class="manacost" { ^manacost }    
+            p class="manacost" { ^manacost }
         }
         p class="typeline" { ^typeline }
         div class="oracle_div" { ^PreEscaped(pretty_text)}
-    ).unwrap();
+    )
+        .unwrap();
     s
 }
 
@@ -116,7 +117,14 @@ impl Card {
                 let mut s = String::new();
                 html!( s,
                     p class="name" { ^name }
-                    div class="oracle_div" { "This type of card (" ^layout ") is not yet implemented. Go complain to the developer" }
+                    div class="oracle_div" {
+                        p class="oracle_p" {
+                            "This type of card (" ^layout ") is not yet implemented."
+                        }
+                        p class="oracle_p" {
+                            "Go complain to the developer"
+                        }
+                    }
                 )
                     .unwrap();
                 s

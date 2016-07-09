@@ -8,7 +8,8 @@ use super::super::sanitize_name;
 
 use std::iter::FromIterator;
 
-const ALLCARDS_JSON: &'static str = include_str!("AllCards.json"); //http://mtgjson.com/json/AllCards.json.zip
+// http://mtgjson.com/json/AllCards.json.zip
+const ALLCARDS_JSON: &'static str = include_str!("AllCards.json");
 
 // Allow non snake case for automatic deserialize
 #[allow(non_snake_case)]

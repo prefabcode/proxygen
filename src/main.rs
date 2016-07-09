@@ -101,7 +101,8 @@ fn main() {
 
     let mut server = Nickel::new();
 
-    server.get("/proxygen", middleware!(|_req, res| {
+    server.get("/proxygen",
+               middleware!(|_req, res| {
         let mut doc = String::new();
         html!(doc, html {
             head {
@@ -144,7 +145,8 @@ fn main() {
         return res.send(doc)
     }));
 
-    server.post("/proxygen", middleware!(|req, mut res| {
+    server.post("/proxygen",
+                middleware!(|req, mut res| {
         let form_body = try_with!(res, req.form_body());
         println!("{:?}", form_body);
         let decklist = String::from(form_body.get("decklist").unwrap());
@@ -153,7 +155,8 @@ fn main() {
             Ok(v) => v,
             Err(ProxygenError::TooManyCards) => {
                 *res.status_mut() = StatusCode::BadRequest;
-                return res.send(format!("Too many proxies requested. Request at most {} proxies at a time", MAX_CARDS))
+                return res.send(format!("Too many proxies requested.
+                    Request at most {} proxies at a time", MAX_CARDS))
             }
             Err(ProxygenError::InvalidCardName(s)) => {
                 *res.status_mut() = StatusCode::BadRequest;
@@ -165,11 +168,13 @@ fn main() {
             },
             Err(ProxygenError::MulticardHasMalformedNames(s)) => {
                 *res.status_mut() = StatusCode::InternalServerError;
-                return res.send(format!("A split/flip/transform has more than 2 different forms. Are you using unhinged/unglued cards? Card: {:?}", s))
+                return res.send(format!("A split/flip/transform has more than 2 different forms.
+                    Are you using unhinged/unglued cards? Card: {:?}", s))
             }
             Err(e) => {
                 *res.status_mut() = StatusCode::InternalServerError;
-                return res.send(format!("An error happened interally that wasn't handled properly. Tell the developer '{:?}'", e));
+                return res.send(format!("An error happened interally that wasn't handled properly.
+                    Tell the developer '{:?}'", e));
             }
         };
 
