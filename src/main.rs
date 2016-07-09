@@ -135,18 +135,10 @@ fn main() {
                         }
                         br {}
                         p { "Please report any errors "
-                            "(Misdisplayed cards, cards that don't process, etc.) "
                             "to the issue tracker on my "
                             a href="https://github.com/Dryvnt/proxygen" {
                                 "Github project page"
                             }
-                        }
-                        br {}
-                        p {
-                            "I make no attempt at supporting Unhinged or Unglued."
-                            "While you can still get proxies of cards from those sets,"
-                            "your results may vary. Please do not report errors specific"
-                            "to Un-cards."
                         }
                     }
                 }
@@ -198,6 +190,7 @@ fn main() {
             head {
                 meta charset="UTF-8"
                 title { "Proxygen" }
+                link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet"
                 style {
                     ^PreEscaped(RESULTS_CSS)
                 }

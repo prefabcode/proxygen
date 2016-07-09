@@ -1,25 +1,24 @@
 p {
     margin-top: 0mm;
     margin-bottom: 1mm;
-    margin-right: 0mm;
-    margin-left: 0mm;
 }
 
 .card_frame {
-    border: 0.5mm dashed black;
-    float: left;
     width: 60mm;
     height: 85mm;
+    border: 0.5mm solid black;
+    margin: -0.25mm;
+    float: left;
     page-break-inside: avoid;
     overflow: hidden;
 }
 
-@import url(https://fonts.googleapis.com/css?family=Sorts+Mill+Goudy);
-
 .card_inner {
-    padding: 1.5mm;
-    font-family: 'Sorts Mill Goudy', monospace;
+    padding: 2mm;
+    font-family: 'Open Sans', sans-serif;
     font-size: 3.75mm;
+    line-height: 3.75mm;
+    text-rendering: geometricPrecision;
 }
 
 .split_left {
@@ -44,17 +43,19 @@ p {
 
 .name {
     display:inline-block;
+    vertical-align: text-top;
     font-weight: bold;
     width: 65%;
 }
 
 .manacost {
     display:inline-block;
+    vertical-align: text-top;
     width: 35%;
     text-align: right;
 }
 
-.oracle_p {
+.oracle_div {
     font-size: 75%;
 }
 
