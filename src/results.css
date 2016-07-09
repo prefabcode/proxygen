@@ -8,9 +8,7 @@ p {
     height: 85mm;
     /*margin and border measured in px because it can't do float-precision
     pixel numbers so mm rounds to wrong numbers*/
-    border: 1mm solid black;
-    margin-bottom: -1mm;
-    margin-right: -1mm;
+    border: 0.5mm solid black;
     float: left;
     page-break-inside: avoid;
     overflow: hidden;
