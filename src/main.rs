@@ -108,6 +108,7 @@ fn main() {
             head {
                 meta charset="UTF-8"
                 title { "Proxygen" }
+                link href="https://fonts.googleapis.com/css?family=Inconsolata|Open+Sans" rel="stylesheet"
                 style {
                     ^PreEscaped(PROXYGEN_CSS)
                 }
@@ -120,6 +121,7 @@ fn main() {
                             textarea name="decklist" class="decklist" {
                               "1 Snapcaster Mage\r\n"
                               "1x Ponder\r\n"
+                              "Dance of the Dead\r\n"
                               "Stomping Ground\r\n"
                               "Jace, the Mind Sculptor\r\n"
                               "Delver of Secrets\r\n"
