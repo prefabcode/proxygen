@@ -58,7 +58,7 @@ fn parse_decklist(decklist: &str) -> Result<Vec<(u64, Card)>, ProxygenError> {
     let mut out = Vec::new();
     for entry in decklist.lines() {
         let trimmed = entry.trim();
-        if !entry.is_empty() {
+        if !trimmed.is_empty() {
             let (n, c) = match BASE_RE.captures(trimmed) {
                 Some(captures) => {
                     let amount: u64 = match captures.at(1) {
