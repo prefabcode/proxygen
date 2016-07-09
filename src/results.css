@@ -58,6 +58,10 @@ p {
     text-align: right;
 }
 
+.name_mana_line {
+    margin-bottom: 1.5mm;
+}
+
 .oracle_div {
     font-size: 75%;
 }

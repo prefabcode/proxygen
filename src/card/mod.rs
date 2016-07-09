@@ -63,8 +63,10 @@ fn base_inner_html(name: &str, manacost: &str, typeline: &str, text: &str) -> St
     let pretty_text = prettify_oracle_text(text);
     let mut s = String::new();
     html!( s,
-        p class="name" { ^name }
-        p class="manacost" { ^manacost }
+        div class="name_mana_line" {
+            p class="name" { ^name }
+            p class="manacost" { ^manacost }    
+        }
         p class="typeline" { ^typeline }
         div class="oracle_div" { ^PreEscaped(pretty_text)}
     ).unwrap();
