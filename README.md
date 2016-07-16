@@ -1,3 +1,5 @@
-This is my own project made for personal enjoyment. Issues are greatly appreciated, even if the issue is just a single card that doesn't work, but please don't make any pull requests for now.
+This is my personal project made for personal enjoyment. Issues are greatly appreciated, even if the issue is just a single card that doesn't work, but please do not make any pull requests for now.
 
-You can try the code on http://dryvnt.me/proxygen
+All card data is ripped straight from [mtgjson](http://mtgjson.com/).
+
+You can see the program running at http://dryvnt.me/proxygen
