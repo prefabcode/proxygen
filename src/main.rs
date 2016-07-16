@@ -134,11 +134,16 @@ fn main() {
                             }
                             input type="submit" /
                         }
-                        p { "Please report any errors "
+                        p {
+                            "Please report any errors "
                             "to the issue tracker on my "
                             a href="https://github.com/Dryvnt/proxygen" {
                                 "Github project page"
                             }
+                            "."
+                        }
+                        p {
+                            "Meld cards are currently not included in the database."
                         }
                     }
                 }
