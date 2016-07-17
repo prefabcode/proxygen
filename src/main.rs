@@ -121,7 +121,7 @@ fn main() {
                         form method="post" {
                             textarea name="decklist" class="decklist" {
                               "1 Snapcaster Mage\r\n"
-                              "1x Ponder\r\n"
+                              "2x Ponder\r\n"
                               "Dance of the Dead\r\n"
                               "Stomping Ground\r\n"
                               "Jace, the Mind Sculptor\r\n"
