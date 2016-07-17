@@ -42,6 +42,10 @@ pub enum Card {
         top: Box<Card>,
         bottom: Box<Card>,
     },
+    Meld {
+        front: Box<Card>,
+        back: Box<Card>,
+    },
     Unimplemented {
         name: String,
         layout: String,
@@ -135,7 +139,8 @@ impl Card {
 
     pub fn to_html(&self) -> String {
         match *self {
-            Card::DoubleFaced { ref front, ref back } => {
+            Card::DoubleFaced { ref front, ref back } |
+            Card::Meld { ref front, ref back } => {
                 let front_html = front.inner_html();
                 let back_html = back.inner_html();
 

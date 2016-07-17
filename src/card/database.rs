@@ -43,7 +43,7 @@ fn make_database() -> Database {
         .map(|(key, value)| (key.clone(), value.clone()))
         .map(|(key, value)| (sanitize_name(&key), value))
         .filter(|&(_, ref value)| {
-            vec!["normal", "split", "flip", "double-faced", "leveler"]
+            vec!["normal", "split", "flip", "double-faced", "leveler", "meld"]
                 .contains(&value.layout.as_str())
         })); // û -> u, example: Lim-Dûl the Necromancer
 
@@ -99,10 +99,10 @@ impl Database {
                     })
                 }
             }
-            "double-faced" | "split" | "flip" => {
+            "double-faced" | "split" | "flip" | "meld" => {
                 let names = match entry.names {
                     Some(v) => {
-                        if v.len() != 2 {
+                        if v.len() < 2 {
                             return Err(ProxygenError::MulticardHasMalformedNames(entry.name));
                         } else {
                             v
@@ -140,6 +140,12 @@ impl Database {
                         Ok(Card::Flip {
                             top: Box::new(first_card),
                             bottom: Box::new(second_card),
+                        })
+                    }
+                    "meld" => {
+                        Ok(Card::Meld {
+                            front: Box::new(first_card),
+                            back: Box::new(second_card),
                         })
                     }
                     _ => unreachable!(),

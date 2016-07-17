@@ -108,7 +108,8 @@ fn main() {
             head {
                 meta charset="UTF-8"
                 title { "Proxygen" }
-                link href="https://fonts.googleapis.com/css?family=Inconsolata|Open+Sans" rel="stylesheet"
+                link href="https://fonts.googleapis.com/css?family=Inconsolata|Open+Sans"
+                     rel="stylesheet"
                 style {
                     ^PreEscaped(PROXYGEN_CSS)
                 }
@@ -142,9 +143,6 @@ fn main() {
                             }
                             "."
                         }
-                        p {
-                            "Meld cards are currently not included in the database."
-                        }
                     }
                 }
             }
@@ -175,8 +173,7 @@ fn main() {
             },
             Err(ProxygenError::MulticardHasMalformedNames(s)) => {
                 *res.status_mut() = StatusCode::InternalServerError;
-                return res.send(format!("A split/flip/transform has more than 2 different forms.
-                    Are you using unhinged/unglued cards? Card: {:?}", s))
+                return res.send(format!("A split/flip/transform has less than two forms: {:?}", s))
             }
             Err(e) => {
                 *res.status_mut() = StatusCode::InternalServerError;
