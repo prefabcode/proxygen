@@ -18,7 +18,7 @@ p {
     padding: 2mm;
     font-family: 'Open Sans', sans-serif;
     font-size: 3.75mm;
-    line-height: 3.75mm;
+    line-height: 100%;
     text-rendering: geometricPrecision;
 }
 
