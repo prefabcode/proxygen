@@ -4,12 +4,28 @@ use super::super::error::ProxygenError;
 
 use super::super::serde_json;
 
-use super::super::sanitize_name;
-
 use std::iter::FromIterator;
 
 // http://mtgjson.com/json/AllCards.json.zip
 const ALLCARDS_JSON: &'static str = include_str!("AllCards.json");
+
+pub fn sanitize_name(name: &str) -> String {
+    // These should cover all non-unhinged/unglued cases.
+    // People who want unhinged/unglued stuff can make sure they're precise
+    name.to_lowercase()
+        .replace("\u{e6}", "ae")
+        .replace("\u{e0}", "a")
+        .replace("\u{e1}", "a")
+        .replace("\u{e2}", "a")
+        .replace("\u{e9}", "e")
+        .replace("\u{ed}", "i")
+        .replace("\u{f6}", "o")
+        .replace("\u{fa}", "u")
+        .replace("\u{fb}", "u")
+        .replace(",", "")
+        .replace("'", "")
+        .replace("-", " ")
+}
 
 // Allow non snake case for automatic deserialize
 #[allow(non_snake_case)]
@@ -59,7 +75,7 @@ impl Database {
         let sane_card_name = sanitize_name(card_name);
         match self.map.get(&sane_card_name) {
             Some(v) => Ok(v.clone()),
-            None => Err(ProxygenError::InvalidCardName(String::from(sane_card_name))),
+            None => Err(ProxygenError::InvalidCardName(String::from(card_name))),
         }
     }
 

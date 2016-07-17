@@ -38,21 +38,6 @@ lazy_static!{
     static ref SPLIT_RE: Regex = Regex::new(r"(.+?)\s*/+\s*.+").unwrap();
 }
 
-pub fn sanitize_name(name: &str) -> String {
-    // These should cover all non-unhinged/unglued cases.
-    // People who want unhinged/unglued stuff can make sure they're precise
-    name.to_lowercase()
-        .replace("\u{e6}", "ae")
-        .replace("\u{e0}", "a")
-        .replace("\u{e1}", "a")
-        .replace("\u{e2}", "a")
-        .replace("\u{e9}", "e")
-        .replace("\u{ed}", "i")
-        .replace("\u{f6}", "o")
-        .replace("\u{fa}", "u")
-        .replace("\u{fb}", "u")
-}
-
 fn parse_decklist(decklist: &str) -> Result<Vec<(u64, Card)>, ProxygenError> {
     let mut count = 0;
     let mut out = Vec::new();
@@ -132,6 +117,8 @@ fn main() {
                               "Echo Mage\r\n"
                               "Æthersnipe\r\n"
                               "Aethersnipe\r\n"
+                              "Anafenza, Kin-Tree Spirit\r\n"
+                              "Anafenza Kin Tree Spirit\r\n"
                             }
                             input type="submit" /
                         }
