@@ -102,7 +102,7 @@ fn main() {
             body {
                 div id="surround" {
                     div id="content" {
-                        h1 { "Shitty Proxy Generator" }
+                        h1 { "Simple Proxy Generator" }
                         form method="post" {
                             textarea name="decklist" class="decklist" {
                               "1 Snapcaster Mage\r\n"
