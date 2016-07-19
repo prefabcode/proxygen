@@ -160,7 +160,7 @@ fn main() {
             },
             Err(ProxygenError::MulticardHasMalformedNames(s)) => {
                 *res.status_mut() = StatusCode::InternalServerError;
-                return res.send(format!("A split/flip/transform has less than two forms: {:?}", s))
+                return res.send(format!("A split/flip/transform/meld card has less than two forms: {:?}", s))
             }
             Err(e) => {
                 *res.status_mut() = StatusCode::InternalServerError;
