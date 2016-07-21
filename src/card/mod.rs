@@ -53,23 +53,30 @@ pub enum Card {
 }
 
 lazy_static!{
-    static ref RE: Regex = Regex::new(r"(?P<reminder>\(.+\))").unwrap();
+    static ref ORACLE_RE: Regex = Regex::new(r"(?P<reminder>\(.+\))").unwrap();
+    static ref MANACOST_RE: Regex = Regex::new(r"(?P<symbol>\{.+?\})").unwrap();
 }
 
 fn prettify_oracle_text(text: &str) -> String {
-    RE.replace_all(text, "<i>$reminder</i>")
+    ORACLE_RE.replace_all(text, "<i>$reminder</i>")
         .lines()
         .map(|line| format!("<p class=\"oracle_p\">{}</p>", line))
         .collect()
 }
 
+fn break_manacost(manacost: &str) -> String {
+    println!("{:?}", MANACOST_RE.captures(manacost));
+    MANACOST_RE.replace_all(manacost, "$symbol<wbr>")
+}
+
 fn base_inner_html(name: &str, manacost: &str, typeline: &str, text: &str) -> String {
     let pretty_text = prettify_oracle_text(text);
+    let breaklined_manacost = break_manacost(manacost);
     let mut s = String::new();
     html!( s,
         div class="name_mana_line" {
             p class="name" { ^name }
-            p class="manacost" { ^manacost }
+            p class="manacost" { ^PreEscaped(breaklined_manacost) }
         }
         p class="typeline" { ^typeline }
         div class="oracle_div" { ^PreEscaped(pretty_text)}
