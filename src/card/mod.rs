@@ -65,7 +65,6 @@ fn prettify_oracle_text(text: &str) -> String {
 }
 
 fn break_manacost(manacost: &str) -> String {
-    println!("{:?}", MANACOST_RE.captures(manacost));
     MANACOST_RE.replace_all(manacost, "$symbol<wbr>")
 }
 
