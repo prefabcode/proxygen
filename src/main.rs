@@ -140,33 +140,47 @@ fn main() {
     server.post("/proxygen",
                 middleware!(|req, mut res| {
         let form_body = try_with!(res, req.form_body());
-        println!("{:?}", form_body);
-        let decklist = String::from(form_body.get("decklist").unwrap());
+        let decklist = String::from(match form_body.get("decklist") {
+            Some(v) => v,
+            None => {
+                *res.status_mut() = StatusCode::BadRequest;
+                return res.send("POST request form did not contain decklist")
+            }
+        });
 
         let parsed = match parse_decklist(&decklist) {
-            Ok(v) => v,
-            Err(ProxygenError::TooManyCards) => {
-                *res.status_mut() = StatusCode::BadRequest;
-                return res.send(format!("Too many proxies requested.
-                    Request at most {} proxies at a time", MAX_CARDS))
-            }
-            Err(ProxygenError::InvalidCardName(s)) => {
-                *res.status_mut() = StatusCode::BadRequest;
-                return res.send(format!("Invalid card name: {:?}", s));
+            Ok(v) => {
+                println!("{:?}", decklist);
+                v
             },
-            Err(ProxygenError::DecklistParseError(s)) => {
-                *res.status_mut() = StatusCode::BadRequest;
-                return res.send(format!("Error parsing decklist at line: {:?}", s));
-            },
-            Err(ProxygenError::MulticardHasMalformedNames(s)) => {
-                *res.status_mut() = StatusCode::InternalServerError;
-                return res.send(format!("A split/flip/transform/meld card has less than two forms: {:?}", s))
-            }
             Err(e) => {
-                *res.status_mut() = StatusCode::InternalServerError;
-                return res.send(format!("An error happened interally that wasn't handled properly.
-                    Tell the developer '{:?}'", e));
+                println!("{:?}\n\t{:?}", decklist, e);
+                match e {
+                    ProxygenError::TooManyCards => {
+                        *res.status_mut() = StatusCode::BadRequest;
+                        return res.send(format!("Too many proxies requested.
+                            Request at most {} proxies at a time", MAX_CARDS))
+                    }
+                    ProxygenError::InvalidCardName(s) => {
+                        *res.status_mut() = StatusCode::BadRequest;
+                        return res.send(format!("Invalid card name: {:?}", s));
+                    },
+                    ProxygenError::DecklistParseError(s) => {
+                        *res.status_mut() = StatusCode::BadRequest;
+                        return res.send(format!("Error parsing decklist at line: {:?}", s));
+                    },
+                    ProxygenError::MulticardHasMalformedNames(s) => {
+                        *res.status_mut() = StatusCode::InternalServerError;
+                        return res.send(format!("A split/flip/transform/meld card has less than two forms: {:?}", s))
+                    }
+                    e => {
+                        *res.status_mut() = StatusCode::InternalServerError;
+                        return res.send(format!("An error happened interally that wasn't handled properly.
+                            Tell the developer '{:?}'", e));
+                    }
+                }
             }
+
         };
 
         let mut div_chain = String::new();
