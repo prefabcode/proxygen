@@ -154,7 +154,7 @@ fn main() {
                 v
             },
             Err(e) => {
-                println!("{:?}\n\t{:?}", decklist, e);
+                println!("{:?}: {:?}", e, decklist);
                 match e {
                     ProxygenError::TooManyCards => {
                         *res.status_mut() = StatusCode::BadRequest;
