@@ -171,12 +171,13 @@ fn main() {
                     },
                     ProxygenError::MulticardHasMalformedNames(s) => {
                         *res.status_mut() = StatusCode::InternalServerError;
-                        return res.send(format!("A split/flip/transform/meld card has less than two forms: {:?}", s))
+                        return res.send(format!("A split/flip/transform/meld card
+                            has less than two forms: {:?}", s))
                     }
                     e => {
                         *res.status_mut() = StatusCode::InternalServerError;
-                        return res.send(format!("An error happened interally that wasn't handled properly.
-                            Tell the developer '{:?}'", e));
+                        return res.send(format!("An error happened interally that wasn't
+                            handled properly. Tell the developer '{:?}'", e));
                     }
                 }
             }
