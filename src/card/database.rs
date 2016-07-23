@@ -23,6 +23,7 @@ pub fn sanitize_name(name: &str) -> String {
         .replace("\u{fa}", "u")
         .replace("\u{fb}", "u")
         .replace(",", "")
+        .replace("\u{e2}", "'") //some users type ’ instead of ', for some reason.
         .replace("'", "")
         .replace("-", " ")
 }
