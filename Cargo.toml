@@ -2,6 +2,10 @@
 name = "proxygen"
 version = "0.1.0"
 authors = ["Thomas Hansen <dryvnt@gmail.com>"]
+build = "build.rs"
+
+[build-dependencies]
+ease = "*"
 
 [dependencies]
 clippy = "*"
