@@ -44,7 +44,6 @@ fn get_allcards_version_status() -> VersionStatus {
 }
 
 fn main() {
-    println!("warning: runnig build script!!!");
     let out_dir = env::var("OUT_DIR").unwrap();
     let allcards_path = Path::new(&out_dir).join("AllCards.json");
 
