@@ -7,7 +7,7 @@ use super::super::serde_json;
 use std::iter::FromIterator;
 
 // http://mtgjson.com/json/AllCards.json.zip
-const ALLCARDS_JSON: &'static str = include_str!("AllCards.json");
+const ALLCARDS_JSON: &'static str = include_str!(concat!(env!("OUT_DIR"), "/AllCards.json"));
 
 pub fn sanitize_name(name: &str) -> String {
     // These should cover all non-unhinged/unglued cases.
