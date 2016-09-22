@@ -96,7 +96,7 @@ fn main() {
                 link href="https://fonts.googleapis.com/css?family=Inconsolata|Open+Sans"
                      rel="stylesheet"
                 style {
-                    ^PreEscaped(PROXYGEN_CSS)
+                    (PreEscaped(PROXYGEN_CSS))
                 }
             }
             body {
@@ -200,11 +200,11 @@ fn main() {
                 title { "Proxygen" }
                 link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet"
                 style {
-                    ^PreEscaped(RESULTS_CSS)
+                    (PreEscaped(RESULTS_CSS))
                 }
             }
             body {
-                ^PreEscaped(div_chain)
+                (PreEscaped(div_chain))
             }
         }).unwrap();
         return res.send(doc)

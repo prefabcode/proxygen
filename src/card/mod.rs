@@ -74,11 +74,11 @@ fn base_inner_html(name: &str, manacost: &str, typeline: &str, text: &str) -> St
     let mut s = String::new();
     html!( s,
         div class="name_mana_line" {
-            p class="name" { ^name }
-            p class="manacost" { ^PreEscaped(breaklined_manacost) }
+            p class="name" { (name) }
+            p class="manacost" { (PreEscaped(breaklined_manacost)) }
         }
-        p class="typeline" { ^typeline }
-        div class="oracle_div" { ^PreEscaped(pretty_text)}
+        p class="typeline" { (typeline) }
+        div class="oracle_div" { (PreEscaped(pretty_text)) }
     )
         .unwrap();
     s
@@ -100,8 +100,8 @@ impl Card {
                              ref toughness } => {
                 let mut s = String::new();
                 html!( s,
-                    ^PreEscaped(base_inner_html(name, manacost, typeline, text))
-                    p class = "power_toughness" { ^power "/" ^toughness }
+                    (PreEscaped(base_inner_html(name, manacost, typeline, text)))
+                    p class = "power_toughness" { (power) "/" (toughness) }
                 )
                     .unwrap();
                 s
@@ -109,8 +109,8 @@ impl Card {
             Card::Planeswalker { ref name, ref manacost, ref typeline, ref text, ref loyalty } => {
                 let mut s = String::new();
                 html!( s,
-                    ^PreEscaped(base_inner_html(name, manacost, typeline, text))
-                    p class = "loyalty" { ^loyalty }
+                    (PreEscaped(base_inner_html(name, manacost, typeline, text)))
+                    p class = "loyalty" { (loyalty) }
                 )
                     .unwrap();
                 s
@@ -118,7 +118,7 @@ impl Card {
             Card::Noncreature { ref name, ref manacost, ref typeline, ref text } => {
                 let mut s = String::new();
                 html!( s,
-                    ^PreEscaped(base_inner_html(name, manacost, typeline, text))
+                    (PreEscaped(base_inner_html(name, manacost, typeline, text)))
                 )
                     .unwrap();
                 s
@@ -126,10 +126,10 @@ impl Card {
             Card::Unimplemented { ref name, ref layout } => {
                 let mut s = String::new();
                 html!( s,
-                    p class="name" { ^name }
+                    p class="name" { (name) }
                     div class="oracle_div" {
                         p class="oracle_p" {
-                            "This type of card (" ^layout ") is not yet implemented."
+                            "This type of card (" (layout) ") is not yet implemented."
                         }
                         p class="oracle_p" {
                             "Go complain to the developer"
@@ -154,12 +154,12 @@ impl Card {
                 html!(s,
                       div class="card_frame" {
                           div class="card_inner" {
-                            ^PreEscaped(front_html)
+                            (PreEscaped(front_html))
                           }
                       }
                     div class="card_frame" {
                         div class="card_inner" {
-                          ^PreEscaped(back_html)
+                          (PreEscaped(back_html))
                         }
                     }
                 )
@@ -175,10 +175,10 @@ impl Card {
                     div class="card_frame" {
                         div class="card_inner" {
                             div class="split_left" {
-                                ^PreEscaped(left_html)
+                                (PreEscaped(left_html))
                             }
                             div class="split_bottom" {
-                                ^PreEscaped(right_html)
+                                (PreEscaped(right_html))
                             }
                         }
                     }
@@ -195,10 +195,10 @@ impl Card {
                     div class="card_frame" {
                         div class="card_inner" {
                             div class="flip_top" {
-                                ^PreEscaped(top_html)
+                                (PreEscaped(top_html))
                             }
                             div class="flip_bottom" {
-                                ^PreEscaped(bottom_html)
+                                (PreEscaped(bottom_html))
                             }
                         }
                     }
@@ -211,7 +211,7 @@ impl Card {
                 html!( s,
                     div class="card_frame" {
                         div class="card_inner" {
-                            ^PreEscaped(self.inner_html())
+                            (PreEscaped(self.inner_html()))
                         }
                     }
                 )
