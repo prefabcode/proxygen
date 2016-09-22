@@ -115,6 +115,7 @@ fn main() {
                               "Fire // Ice\r\n"
                               "Akki Lavarunner\r\n"
                               "Echo Mage\r\n"
+                              "Skysovereign, Consul Flagship\r\n"
                               "Æthersnipe\r\n"
                               "Aethersnipe\r\n"
                               "Anafenza, Kin-Tree Spirit\r\n"
