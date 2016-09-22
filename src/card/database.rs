@@ -90,7 +90,9 @@ impl Database {
         match entry.layout.as_str() {
             "normal" | "leveler" => {
                 let types = entry.types.unwrap_or_default();
-                if types.contains(&String::from("Creature")) {
+                let subtypes = entry.subtypes.unwrap_or_default();
+                if types.contains(&String::from("Creature")) ||
+                   subtypes.contains(&String::from("Vehicle")) {
                     Ok(Card::Creature {
                         name: entry.name,
                         manacost: entry.manaCost.unwrap_or_default(),
