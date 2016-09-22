@@ -132,7 +132,7 @@ impl Database {
                 let second_name = &names[1];
 
                 let mut first_entry = try!(self.get_entry(first_name));
-                let mut second_entry = try!(self.get_entry(second_name));;
+                let mut second_entry = try!(self.get_entry(second_name));
 
                 first_entry.layout = String::from("normal");
                 second_entry.layout = String::from("normal");

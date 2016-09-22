@@ -30,26 +30,11 @@ pub enum Card {
         typeline: String,
         text: String,
     },
-    DoubleFaced {
-        front: Box<Card>,
-        back: Box<Card>,
-    },
-    Split {
-        left: Box<Card>,
-        right: Box<Card>,
-    },
-    Flip {
-        top: Box<Card>,
-        bottom: Box<Card>,
-    },
-    Meld {
-        front: Box<Card>,
-        back: Box<Card>,
-    },
-    Unimplemented {
-        name: String,
-        layout: String,
-    },
+    DoubleFaced { front: Box<Card>, back: Box<Card> },
+    Split { left: Box<Card>, right: Box<Card> },
+    Flip { top: Box<Card>, bottom: Box<Card> },
+    Meld { front: Box<Card>, back: Box<Card> },
+    Unimplemented { name: String, layout: String },
 }
 
 lazy_static!{
@@ -117,9 +102,8 @@ impl Card {
             }
             Card::Noncreature { ref name, ref manacost, ref typeline, ref text } => {
                 let mut s = String::new();
-                html!( s,
-                    (PreEscaped(base_inner_html(name, manacost, typeline, text)))
-                )
+                html!(s,
+                      (PreEscaped(base_inner_html(name, manacost, typeline, text))))
                     .unwrap();
                 s
             }
